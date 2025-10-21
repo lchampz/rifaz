@@ -1,0 +1,44 @@
+{
+  "name": "rifaz-system",
+  "version": "1.0.0",
+  "description": "Sistema de Rifas Online de Alto Desempenho",
+  "main": "index.js",
+  "scripts": {
+    "dev": "bun run --parallel \"bun run dev:backend\" \"bun run dev:frontend\"",
+    "dev:backend": "cd backend && bun run dev",
+    "dev:frontend": "cd frontend && bun run start",
+    "build": "bun run build:backend && bun run build:frontend",
+    "build:backend": "cd backend && bun run build",
+    "build:frontend": "cd frontend && bun run build",
+    "start": "bun run --parallel \"bun run start:backend\" \"bun run start:frontend\"",
+    "start:backend": "cd backend && bun run start",
+    "start:frontend": "cd frontend && bun run start",
+    "docker:build": "docker-compose build",
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down",
+    "docker:logs": "docker-compose logs -f",
+    "install": "bun install",
+    "type-check": "bun run type-check:backend && bun run type-check:frontend",
+    "type-check:backend": "cd backend && bun run type-check",
+    "type-check:frontend": "cd frontend && bun run type-check",
+    "lint": "bun run lint:backend && bun run lint:frontend",
+    "lint:backend": "cd backend && bun run lint",
+    "lint:frontend": "cd frontend && bun run lint",
+    "lint:fix": "bun run lint:fix:backend && bun run lint:fix:frontend",
+    "lint:fix:backend": "cd backend && bun run lint:fix",
+    "lint:fix:frontend": "cd frontend && bun run lint:fix",
+    "format": "bun run format:backend && bun run format:frontend",
+    "format:backend": "cd backend && bun run format",
+    "format:frontend": "cd frontend && bun run format",
+    "clean": "bun run clean:backend && bun run clean:frontend",
+    "clean:backend": "cd backend && bun run clean",
+    "clean:frontend": "cd frontend && bun run clean"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  },
+  "workspaces": [
+    "backend",
+    "frontend"
+  ]
+}

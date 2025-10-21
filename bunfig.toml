@@ -1,0 +1,22 @@
+[install]
+# Configurações de instalação
+cache = true
+production = false
+dev = true
+optional = true
+peer = true
+
+[install.scopes]
+# Escopos para pacotes privados se necessário
+
+[test]
+# Configurações de teste
+timeout = 5000
+coverage = true
+
+[install.lockfile]
+# Configurações do lockfile
+save = true
+saveDev = true
+saveOptional = true
+savePeer = true

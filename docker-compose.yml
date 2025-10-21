@@ -1,0 +1,115 @@
+version: '3.8'
+
+services:
+  # Banco de dados PostgreSQL
+  postgres:
+    image: postgres:15-alpine
+    container_name: rifaz-postgres
+    environment:
+      POSTGRES_DB: rifaz
+      POSTGRES_USER: rifaz_user
+      POSTGRES_PASSWORD: rifaz_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./backend/prisma/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - rifaz-network
+
+  # Redis para cache e filas
+  redis:
+    image: redis:7-alpine
+    container_name: rifaz-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - rifaz-network
+
+  # Backend API
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: rifaz-backend
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=postgresql://rifaz_user:rifaz_password@postgres:5432/rifaz
+      - REDIS_URL=redis://redis:6379
+      - JWT_SECRET=your-super-secret-jwt-key-change-in-production
+      - ABACATE_PAY_API_KEY=your-abacate-pay-api-key
+      - ABACATE_PAY_WEBHOOK_SECRET=your-webhook-secret
+      - SMTP_HOST=smtp.gmail.com
+      - SMTP_PORT=587
+      - SMTP_USER=your-email@gmail.com
+      - SMTP_PASS=your-app-password
+    ports:
+      - "3001:3001"
+    depends_on:
+      - postgres
+      - redis
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+    networks:
+      - rifaz-network
+    restart: unless-stopped
+    command: ["bun", "run", "start"]
+
+  # Frontend React
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: rifaz-frontend
+    environment:
+      - REACT_APP_API_URL=http://localhost:3001
+      - REACT_APP_ENV=production
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    networks:
+      - rifaz-network
+    restart: unless-stopped
+
+  # Worker para tarefas assíncronas
+  worker:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: rifaz-worker
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=postgresql://rifaz_user:rifaz_password@postgres:5432/rifaz
+      - REDIS_URL=redis://redis:6379
+      - JWT_SECRET=your-super-secret-jwt-key-change-in-production
+      - ABACATE_PAY_API_KEY=your-abacate-pay-api-key
+      - ABACATE_PAY_WEBHOOK_SECRET=your-webhook-secret
+      - SMTP_HOST=smtp.gmail.com
+      - SMTP_PORT=587
+      - SMTP_USER=your-email@gmail.com
+      - SMTP_PASS=your-app-password
+    command: ["bun", "run", "worker"]
+    depends_on:
+      - postgres
+      - redis
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+    networks:
+      - rifaz-network
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  redis_data:
+
+networks:
+  rifaz-network:
+    driver: bridge
