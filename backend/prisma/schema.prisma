@@ -1,0 +1,165 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+    provider = "prisma-client-js"
+}
+
+datasource db {
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
+}
+
+// Tabela de Usuários
+model User {
+    id            String   @id @default(cuid())
+    email         String   @unique
+    passwordHash  String?
+    name          String
+    roles         Role[]   @default([BUYER])
+    emailVerified Boolean  @default(false)
+    createdAt     DateTime @default(now())
+    updatedAt     DateTime @updatedAt
+
+    // Relacionamentos
+    createdRaffles Raffle[]
+    tickets        Ticket[]
+    transactions   Transaction[]
+
+    @@map("users")
+}
+
+// Enum para Roles
+enum Role {
+    ADMIN
+    CREATOR
+    BUYER
+}
+
+// Tabela de Rifas
+model Raffle {
+    id            String       @id @default(cuid())
+    titulo        String
+    descricao     String?
+    valorUnitario Decimal      @db.Decimal(10, 2)
+    totalNumeros  Int
+    dataSorteio   DateTime
+    status        RaffleStatus @default(DRAFT)
+    creatorId     String
+    imageUrl      String?
+    winningNumber Int?
+    drawingHash   String?
+    createdAt     DateTime     @default(now())
+    updatedAt     DateTime     @updatedAt
+
+    // Relacionamentos
+    creator      User          @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+    tickets      Ticket[]
+    transactions Transaction[]
+
+    // Índices para performance
+    @@index([creatorId, status])
+    @@index([status, dataSorteio])
+    @@map("raffles")
+}
+
+// Enum para Status da Rifa
+enum RaffleStatus {
+    DRAFT
+    ACTIVE
+    PENDING_DRAW
+    FINISHED
+    CANCELED
+}
+
+// Tabela de Tickets
+model Ticket {
+    id            String       @id @default(cuid())
+    raffleId      String
+    number        Int
+    buyerId       String?
+    status        TicketStatus @default(RESERVED)
+    transactionId String?
+    createdAt     DateTime     @default(now())
+    updatedAt     DateTime     @updatedAt
+
+    // Relacionamentos
+    raffle      Raffle       @relation(fields: [raffleId], references: [id], onDelete: Cascade)
+    buyer       User?        @relation(fields: [buyerId], references: [id], onDelete: SetNull)
+    transaction Transaction? @relation(fields: [transactionId], references: [id], onDelete: SetNull)
+
+    // Índices para performance e unicidade
+    @@unique([raffleId, number])
+    @@index([status, createdAt])
+    @@index([buyerId])
+    @@map("tickets")
+}
+
+// Enum para Status do Ticket
+enum TicketStatus {
+    RESERVED
+    PAID
+    CANCELED
+}
+
+// Tabela de Transações
+model Transaction {
+    id         String            @id @default(cuid())
+    ticketIds  String[] // Array de IDs dos tickets
+    amount     Decimal           @db.Decimal(10, 2)
+    serviceFee Decimal           @db.Decimal(10, 2)
+    gatewayFee Decimal           @db.Decimal(10, 2)
+    netValue   Decimal           @db.Decimal(10, 2)
+    externalId String?           @unique // ID externo do AbacatePay
+    buyerId    String
+    raffleId   String
+    status     TransactionStatus @default(PENDING)
+    pixCode    String?
+    pixQrCode  String?
+    expiresAt  DateTime?
+    createdAt  DateTime          @default(now())
+    updatedAt  DateTime          @updatedAt
+
+    // Relacionamentos
+    buyer   User     @relation(fields: [buyerId], references: [id], onDelete: Cascade)
+    raffle  Raffle   @relation(fields: [raffleId], references: [id], onDelete: Cascade)
+    tickets Ticket[]
+
+    // Índices
+    @@index([externalId])
+    @@index([status, createdAt])
+    @@index([buyerId])
+    @@map("transactions")
+}
+
+// Enum para Status da Transação
+enum TransactionStatus {
+    PENDING
+    PAID
+    EXPIRED
+    CANCELED
+}
+
+// Tabela para logs de eventos (Event Sourcing)
+model EventLog {
+    id         String   @id @default(cuid())
+    eventType  String
+    entityId   String
+    entityType String
+    data       Json
+    createdAt  DateTime @default(now())
+
+    @@index([eventType, createdAt])
+    @@index([entityId, entityType])
+    @@map("event_logs")
+}
+
+// Tabela para configurações do sistema
+model SystemConfig {
+    id          String  @id @default(cuid())
+    key         String  @unique
+    value       String
+    description String?
+
+    @@map("system_config")
+}

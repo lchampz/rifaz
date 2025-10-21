@@ -1,0 +1,56 @@
+name: Type Check and Lint
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+jobs:
+  type-check:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install Backend Dependencies
+        run: |
+          cd backend
+          bun install
+
+      - name: Install Frontend Dependencies
+        run: |
+          cd frontend
+          bun install
+
+      - name: Type Check Backend
+        run: |
+          cd backend
+          bun run type-check
+
+      - name: Type Check Frontend
+        run: |
+          cd frontend
+          bun run type-check
+
+      - name: Build Backend
+        run: |
+          cd backend
+          bun run build
+
+      - name: Build Frontend
+        run: |
+          cd frontend
+          bun run build

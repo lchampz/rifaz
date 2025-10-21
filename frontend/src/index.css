@@ -1,0 +1,95 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    font-family: 'Inter', system-ui, sans-serif;
+  }
+  
+  body {
+    @apply bg-gray-50 text-gray-900;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-primary-600 hover:bg-primary-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2;
+  }
+  
+  .btn-secondary {
+    @apply bg-gray-200 hover:bg-gray-300 text-gray-900 font-medium py-2 px-4 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2;
+  }
+  
+  .btn-success {
+    @apply bg-success-600 hover:bg-success-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-success-500 focus:ring-offset-2;
+  }
+  
+  .btn-danger {
+    @apply bg-danger-600 hover:bg-danger-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-danger-500 focus:ring-offset-2;
+  }
+  
+  .card {
+    @apply bg-white rounded-lg shadow-sm border border-gray-200 p-6;
+  }
+  
+  .input-field {
+    @apply block w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm;
+  }
+  
+  .badge {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+  }
+  
+  .badge-draft {
+    @apply badge bg-gray-100 text-gray-800;
+  }
+  
+  .badge-active {
+    @apply badge bg-success-100 text-success-800;
+  }
+  
+  .badge-pending {
+    @apply badge bg-warning-100 text-warning-800;
+  }
+  
+  .badge-finished {
+    @apply badge bg-gray-100 text-gray-800;
+  }
+  
+  .badge-canceled {
+    @apply badge bg-danger-100 text-danger-800;
+  }
+  
+  .progress-bar {
+    @apply w-full bg-gray-200 rounded-full h-2.5;
+  }
+  
+  .progress-fill {
+    @apply bg-success-600 h-2.5 rounded-full transition-all duration-300;
+  }
+  
+  .timer {
+    @apply text-2xl font-bold text-danger-600 animate-pulse-slow;
+  }
+  
+  .number-grid {
+    @apply grid grid-cols-10 gap-2 max-w-md mx-auto;
+  }
+  
+  .number-button {
+    @apply w-10 h-10 rounded-lg border-2 border-gray-300 bg-white text-gray-700 font-medium hover:border-primary-500 hover:bg-primary-50 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2;
+  }
+  
+  .number-button.selected {
+    @apply border-primary-500 bg-primary-100 text-primary-700;
+  }
+  
+  .number-button.sold {
+    @apply border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed;
+  }
+  
+  .number-button.reserved {
+    @apply border-warning-300 bg-warning-50 text-warning-700;
+  }
+}
